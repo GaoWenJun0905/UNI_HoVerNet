@@ -49,14 +49,15 @@ def get_config(nr_type, mode):
                             "loss": {
                                 "np": {"bce": 1, "dice": 1},
                                 "hv": {"mse": 1, "msge": 1},
-                                "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"bce": 1, "dice": 1},
+                                "tp": {"cost": 1, "dice": 1}, # 20260304-1
                             },
                         },
                         # path to load, -1 to auto load checkpoint from previous phase,
                         # None to start from scratch
-                        # "pretrained": "/media/server/data_1/24_GaoWenJun/Code/HoVerNet/ImageNet-ResNet50-Preact_pytorch.tar",
+                        "pretrained": "/media/server/data_1/24_GaoWenJun/Code/HoVerNet/ImageNet-ResNet50-Preact_pytorch.tar",
                         # 20260203_GWJ
-                        "pretrained": "/media/server/data_1/24_GaoWenJun/Code/UNI/pytorch_model.bin",
+                        # "pretrained": "/media/server/data_1/24_GaoWenJun/Code/UNI/pytorch_model.bin",
                         # 'pretrained': None,
                     },
                 },
@@ -86,7 +87,8 @@ def get_config(nr_type, mode):
                             "loss": {
                                 "np": {"bce": 1, "dice": 1},
                                 "hv": {"mse": 1, "msge": 1},
-                                "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"bce": 1, "dice": 1},
+                                "tp": {"cost": 1, "dice": 1}, # 20260304-1
                             },
                         },
                         # path to load, -1 to auto load checkpoint from previous phase,
@@ -123,7 +125,8 @@ def get_config(nr_type, mode):
                                 "np": {"bce": 0, "dice": 0},
                                 "hv": {"mse": 0, "msge": 0},
                                 # 开启分类 Loss
-                                "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"bce": 1, "dice": 1},
+                                "tp": {"cost": 1, "dice": 1}, # 20260304-1
                             },
                         },
                         "pretrained": -1,  # 继承 Phase 2

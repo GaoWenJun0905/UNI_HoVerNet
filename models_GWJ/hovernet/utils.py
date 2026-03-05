@@ -72,6 +72,90 @@ def xentropy_loss(true, pred, reduction="mean"):
     return loss
 
 
+# 20260227_GWJ
+def cost_sensitive_loss(input, target, M):
+    target = torch.argmax(target, dim=-1, keepdim=False)
+    if input.size(0) != target.size(0):
+        raise ValueError('Expected input batch_size ({}) to match target batch_size ({}).'
+                         .format(input.size(0), target.size(0)))
+    device = input.device
+    M = M.to(device)
+
+    return torch.sum((M[target, :] * input.float()), dim=-1, keepdim=True)
+def cost_xentropy_loss(true, pred, reduction="mean"):
+    """Cross Sensitive loss. Assumes NHWC!
+
+    Args:
+        pred: prediction array
+        true: ground truth array
+
+    Returns:
+        Cross Sensitive loss
+
+    """
+    N, H, W, C = pred.size()
+
+    lambd = 0.2
+
+
+    # M = np.array([
+    #     [0, 1, 1, 1, 1],
+    #     [2, 0, 2, 2, 2],
+    #     [2, 2, 0, 2, 2],
+    #     [10, 10, 10, 0, 10],
+    #     [10, 10, 10, 10, 0]
+    # ], dtype=np.float)
+
+    # 20250227_GWJ:20260227-1训练用的矩阵
+    M = np.array([
+        [0, 1, 1],
+        [2, 0, 2],
+        [10, 10, 0]
+    ])
+    # 20250301_GWJ:20260301-1训练用的矩阵
+    # M = np.array([
+    #     [0, 1, 1],
+    #     [2, 0, 2],
+    #     [20, 20, 0]
+    # ])
+
+    # 20250115_GWJ:20260116-1训练用的矩阵
+    # M = np.array([
+    #     [0, 1, 1],
+    #     [2, 0, 2],
+    #     [20, 20, 0]
+    # ])
+
+
+    # M = M/M.sum()
+    M = torch.from_numpy(M)
+
+    # print("M",M)
+
+    # if C == 5:
+    if C == 3:
+        costsensitive_loss = cost_sensitive_loss(pred, true, M)  # costsensitive_loss.shape torch.Size([8, 256, 256])
+        costsensitive_loss = lambd * costsensitive_loss
+        epsilon = 10e-8
+        # scale preds so that the class probs of each sample sum to 1
+        pred = pred / torch.sum(pred, -1, keepdim=True)
+        # manual computation of crossentropy
+        pred = torch.clamp(pred, epsilon, 1.0 - epsilon)
+
+        loss = -torch.sum((true * torch.log(pred)), -1, keepdim=True)
+        loss = (costsensitive_loss + loss).mean() if reduction == "mean" else (costsensitive_loss + loss).sum()
+    else:
+
+        epsilon = 10e-8
+        # scale preds so that the class probs of each sample sum to 1
+        pred = pred / torch.sum(pred, -1, keepdim=True)
+        pred = torch.clamp(pred, epsilon, 1.0 - epsilon)
+        loss = -torch.sum((true * torch.log(pred)), -1, keepdim=True)
+        loss = loss.mean() if reduction == "mean" else loss.sum()
+        return loss
+
+    return loss
+
 ####
 def dice_loss(true, pred, smooth=1e-3):
     """`pred` and `true` must be of torch.float32. Assuming of shape NxHxWxC."""

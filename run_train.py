@@ -222,9 +222,24 @@ class TrainManager(Config):
                         net_state_dict = torch.load(pretrained_path)["desc"]
                     elif chkpt_ext == "bin":
                         net_state_dict = torch.load(pretrained_path, map_location='cpu')
-                        # 如果 UNI 权重被包在 "model" 键里则提取，否则直接使用
                         if isinstance(net_state_dict, dict) and "model" in net_state_dict:
                             net_state_dict = net_state_dict["model"]
+
+                        # 【修正后的补全逻辑】：排除自定义的顶级层
+                        new_dict = {}
+                        # 这些是你定义在 HoVerNet 下的顶级模块，不需要加 backbone. 前缀
+                        excluded_layers = ["conv_bot", "upsample2x", "adapter", "decoder"]
+
+                        for k, v in net_state_dict.items():
+                            # 判定条件：既没有 backbone 前缀，也不是我们自定义的层，才需要加前缀
+                            needs_prefix = not k.startswith("backbone.") and \
+                                           not any(k.startswith(layer) for layer in excluded_layers)
+
+                            if needs_prefix:
+                                new_dict["backbone." + k] = v
+                            else:
+                                new_dict[k] = v
+                        net_state_dict = new_dict
 
                 colored_word = colored(net_name, color="red", attrs=["bold"])
                 print(

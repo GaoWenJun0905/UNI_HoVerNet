@@ -51,8 +51,12 @@ def get_config(nr_type, mode):
                         "extra_info": {
                             "loss": {
                                 "np": {"bce": 1, "dice": 1},
+                                # "np": {"cost": 1, "dice": 1}, # 20260227_GWJ
                                 "hv": {"mse": 1, "msge": 1},
-                                "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"focal": 1, "dice": 1},# 20260214_GWJ效果不好
+                                # "tp": {"bah": 1, "dice": 1},# 20260215_GWJ
+                                "tp": {"cost": 1, "dice": 1},# 20260227_GWJ
                             },
                         },
                         # path to load, -1 to auto load checkpoint from previous phase,
@@ -66,6 +70,7 @@ def get_config(nr_type, mode):
                 "target_info": {"gen": (gen_targets, {}), "viz": (prep_sample, {})},
                 "batch_size": {"train": 4, "valid": 4,},  # engine name : value
                 # "nr_epochs": 50,
+                # "nr_epochs": 5,
                 "nr_epochs": 5,
             },
             {
@@ -88,8 +93,12 @@ def get_config(nr_type, mode):
                         "extra_info": {
                             "loss": {
                                 "np": {"bce": 1, "dice": 1},
+                                # "np": {"cost": 1, "dice": 1}, # 20260227_GWJ
                                 "hv": {"mse": 1, "msge": 1},
-                                "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"focal": 1, "dice": 1},# 20260214_GWJ效果不好
+                                # "tp": {"bah": 1, "dice": 1},# 20260215_GWJ
+                                "tp": {"cost": 1, "dice": 1},# 20260227_GWJ
                             },
                         },
                         # path to load, -1 to auto load checkpoint from previous phase,
@@ -99,6 +108,7 @@ def get_config(nr_type, mode):
                 },
                 "target_info": {"gen": (gen_targets, {}), "viz": (prep_sample, {})},
                 "batch_size": {"train": 4, "valid": 4,}, # batch size per gpu
+                # "nr_epochs": 100,
                 "nr_epochs": 100,
             },
 
@@ -124,9 +134,12 @@ def get_config(nr_type, mode):
                             "loss": {
                                 # [关键] 关掉分割 Loss，只留分类
                                 "np": {"bce": 0, "dice": 0},
+                                # "np": {"cost": 0, "dice": 0},
                                 "hv": {"mse": 0, "msge": 0},
                                 # 开启分类 Loss
-                                "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"bce": 1, "dice": 1},
+                                # "tp": {"focal": 1, "dice": 1}, # 20260214_GWJ效果不好
+                                "tp": {"cost": 1, "dice": 1}, # 20260215_GWJ
                             },
                         },
                         "pretrained": -1,  # 继承 Phase 2
@@ -134,6 +147,7 @@ def get_config(nr_type, mode):
                 },
                 "target_info": {"gen": (gen_targets, {}), "viz": (prep_sample, {})},
                 "batch_size": {"train": 4, "valid": 4},
+                # "nr_epochs": 50,  # 专门花时间修分类
                 "nr_epochs": 50,  # 专门花时间修分类
             },
         ],

@@ -18,8 +18,8 @@ class Config(object):
         # turn on debug flag to trace some parallel processing problems more easily
         self.debug = False
 
-        # model_name = "hovernet"
-        model_name = "UNI_hovernet"
+        model_name = "hovernet"
+        # model_name = "UNI_hovernet"
         model_mode = "fast" # choose either `original` or `fast`
 
         if model_mode not in ["original", "fast"]:
@@ -49,21 +49,25 @@ class Config(object):
                 raise Exception("If using `fast` mode, input shape must be [256,256] and output shape must be [164,164]")
 
         self.dataset_name = "f1" # extracts dataset info from dataset.py
-        self.log_dir = "/media/server/data_2/24_GaoWenJun/UNI_HoVerNet/Logs/20250205-1" # where checkpoints will be saved
+        # self.log_dir = "/media/server/data_2/24_GaoWenJun/UNI_HoVerNet/Logs/20260303-2" # where checkpoints will be saved
+        self.log_dir = "/media/server/data_2/24_GaoWenJun/HoVerNet/Logs/20260305-1" # where checkpoints will be saved
 
         # paths to training and validation patches
         self.train_dir_list = [
-            "/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_TTF-1_slide4/f1/f1/train/540x540_500x500",
+            # "/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_TTF-1_slide4/f1/f1/train/540x540_500x500",
             # "/home/wenjun_data/SMILE_Data/Data/TrainingData/test/SMILE/0.9:0.1_WT-1_slide4/f1/f1/train/540x540_500x500"
             # '/home/wenjun_data/SMILE_Data/Data/TrainingData/0.9:0.1_TTF-1_slide4/f1/f1/train/540x540_500x500',
-            '/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_WT-1_slide4/f1/f1/train/540x540_500x500'
-
+            # '/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_WT-1_slide4/f1/f1/train/540x540_500x500'
+            '/home/wenjun_data/SMILE_Data/Data/TrainingData/20260208_test/0.9:0.1_TTF-1_slide4/f1/f1/train/540x540_500x500',
+            '/home/wenjun_data/SMILE_Data/Data/TrainingData/20260208_test/0.9:0.1_WT-1_slide4/f1/f1/train/540x540_500x500'
         ]
         self.valid_dir_list = [
-            "/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_TTF-1_slide4/f1/f1/valid/540x540_500x500",
+            # "/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_TTF-1_slide4/f1/f1/valid/540x540_500x500",
             # "/home/wenjun_data/SMILE_Data/Data/TrainingData/test/SMILE/0.9:0.1_WT-1_slide4/f1/f1/valid/540x540_500x500"
             # '/home/wenjun_data/SMILE_Data/Data/TrainingData/0.9:0.1_TTF-1_slide4/f1/f1/valid/540x540_500x500',
-            '/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_WT-1_slide4/f1/f1/valid/540x540_500x500'
+            # '/home/wenjun_data/SMILE_Data/Data/TrainingData/test/HoVerNet/0.9:0.1_WT-1_slide4/f1/f1/valid/540x540_500x500'
+            '/home/wenjun_data/SMILE_Data/Data/TrainingData/20260208_test/0.9:0.1_TTF-1_slide4/f1/f1/valid/540x540_500x500',
+            '/home/wenjun_data/SMILE_Data/Data/TrainingData/20260208_test/0.9:0.1_WT-1_slide4/f1/f1/valid/540x540_500x500'
         ]
 
         self.shape_info = {

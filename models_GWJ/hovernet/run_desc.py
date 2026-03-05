@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 
 from misc.utils import center_pad_to_shape, cropping_center
-from .utils import crop_to_shape, dice_loss, mse_loss, msge_loss, xentropy_loss
+from .utils import crop_to_shape, dice_loss, mse_loss, msge_loss, xentropy_loss, cost_xentropy_loss
 
 from collections import OrderedDict
 
@@ -19,6 +19,7 @@ def train_step(batch_data, run_info):
         "dice": dice_loss,
         "mse": mse_loss,
         "msge": msge_loss,
+        "cost": cost_xentropy_loss,
     }
     result_dict = {"EMA": {}}
     track_value = lambda name, value: result_dict["EMA"].update({name: value})

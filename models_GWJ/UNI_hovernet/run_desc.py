@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 
 from misc.utils import center_pad_to_shape, cropping_center
-from .utils import crop_to_shape, dice_loss, mse_loss, msge_loss, xentropy_loss
+from .utils import crop_to_shape, dice_loss, mse_loss, msge_loss, xentropy_loss, focal_loss, bah_loss, cost_xentropy_loss
 
 from collections import OrderedDict
 
@@ -19,6 +19,9 @@ def train_step(batch_data, run_info):
         "dice": dice_loss,
         "mse": mse_loss,
         "msge": msge_loss,
+        "focal": focal_loss, # 20260214_GWJ
+        "bah": bah_loss, # 20260214_GWJ
+        "cost": cost_xentropy_loss # 20260227_GWJ
     }
     result_dict = {"EMA": {}}
     track_value = lambda name, value: result_dict["EMA"].update({name: value})
@@ -801,7 +804,8 @@ def proc_valid_step_output(raw_data, nr_types=None):
             task_name = None
 
         # --- 计算 NP 指标 (累加) ---
-        batch_pred_np = (batch_prob_np > 0.5).astype(np.int32)
+        # batch_pred_np = (batch_prob_np > 0.5).astype(np.int32) # 20260227_GWJ
+        batch_pred_np = (batch_prob_np > 0.35).astype(np.int32) # 20260227_GWJ Code:0.5 -> 0.35
         batch_true_np = batch_true_np.astype(np.int32)
 
         inter, total = _batch_dice_stat(batch_true_np, batch_pred_np, 1)

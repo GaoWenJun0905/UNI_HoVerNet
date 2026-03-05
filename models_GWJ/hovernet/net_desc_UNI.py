@@ -72,13 +72,10 @@ class UNI_Adapter(nn.Module):
 
     def forward(self, feats):
         # feats 是从 timm 提取的中间层输出列表 [feat0, feat1, feat2, feat3]
-
-        # 20260204_GWJ: 先投影提炼特征，再进行空间变换
         d0 = self.up_d0(self.proj_d0(feats[0]))
         d1 = self.up_d1(self.proj_d1(feats[1]))
         d2 = self.up_d2(self.proj_d2(feats[2]))
         d3 = self.down_d3(self.proj_d3(feats[3]))
-
         return d0, d1, d2, d3
 
 
@@ -96,8 +93,7 @@ class HoVerNet(Net):
         assert mode == 'original' or mode == 'fast', \
             'Unknown mode `%s` for HoVerNet %s. Only support `original` or `fast`.' % mode
 
-        # --- 20260204_GWJ: 直接用 timm 调用 UNI 骨干网络 (ViT-L/16) ---
-        # UNI 的架构基础是 vit_large_patch16_224
+        # --- 20260204_GWJ: 定义并行子模块，确保命名路径处于顶级 ---
         self.backbone = timm.create_model(
             "vit_large_patch16_224",
             pretrained=False,
@@ -106,12 +102,14 @@ class HoVerNet(Net):
             dynamic_img_size=True
         )
 
-        # 实例化适配器
         self.adapter = UNI_Adapter(embed_dim=1024)
-        # --------------------------------------------------
 
-        # 这里的 conv_bot 保留，用于处理 d3 (最深层特征)
+        # 这里的 conv_bot 直接定义在 self 下，确保加载时 key 为 "conv_bot.weight"
         self.conv_bot = nn.Conv2d(2048, 1024, 1, stride=1, padding=0, bias=False)
+
+        # 这里的 upsample2x 直接定义在 self 下，确保加载时 key 包含 "upsample2x.unpool_mat"
+        self.upsample2x = UpSample2x()
+        # --------------------------------------------------
 
         # 修改 create_decoder_branch 以支持 SE Attention
         def create_decoder_branch(out_ch=2, ksize=5, is_tp=False):
@@ -173,7 +171,6 @@ class HoVerNet(Net):
                 )
             )
 
-        self.upsample2x = UpSample2x()
         self.weights_init()
 
     def forward(self, imgs):
@@ -187,20 +184,19 @@ class HoVerNet(Net):
             imgs_input = imgs
 
         with torch.set_grad_enabled(not self.freeze):
-            # 使用 timm 获取中间层输出 (Block 7, 15, 23, 23)
-            # reshape=True 会自动将 [B, N, C] 的 Token 格式转为 [B, C, H, W] 的 2D 格式
+            # 获取中间层特征
             indices = [7, 15, 23, 23]
             feats_2d = self.backbone.get_intermediate_layers(imgs_input, n=indices, reshape=True)
 
-            # 通过 Adapter 生成金字塔特征 (含线性投影层)
+            # 通过 Adapter 生成金字塔特征
             d0, d1, d2, d3 = self.adapter(feats_2d)
 
-        # 这里的 d3 是 Adapter 输出的 2048 通道，conv_bot 把它变成 1024
+        # 核心：使用顶级定义的 conv_bot 处理最深层特征
         d3 = self.conv_bot(d3)
         d = [d0, d1, d2, d3]
         # ----------------------------------------------
 
-        # TODO: switch to `crop_to_shape` ?
+        # 裁剪操作
         if self.mode == 'original':
             d[0] = crop_op(d[0], [184, 184])
             d[1] = crop_op(d[1], [72, 72])
@@ -210,6 +206,7 @@ class HoVerNet(Net):
 
         out_dict = OrderedDict()
         for branch_name, branch_desc in self.decoder.items():
+            # 使用顶级定义的 upsample2x
             u3 = self.upsample2x(d[-1]) + d[-2]
             u3 = branch_desc[0](u3)
 

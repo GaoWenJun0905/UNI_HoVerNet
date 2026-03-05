@@ -53,73 +53,89 @@ class InferManager(object):
             }
         return
 
-    # def __load_model(self):
-    #     """Create the model, load the checkpoint and define
-    #     associated run steps to process each data batch.
-    #
-    #     """
-    #     model_desc = import_module("models_GWJ.hovernet.net_desc")
-    #     model_creator = getattr(model_desc, "create_model")
-    #
-    #     net = model_creator(**self.method["model_args"])
-    #     saved_state_dict = torch.load(self.method["model_path"])["desc"]
-    #     saved_state_dict = convert_pytorch_checkpoint(saved_state_dict)
-    #
-    #     net.load_state_dict(saved_state_dict, strict=True)
-    #     net = torch.nn.DataParallel(net)
-    #     net = net.to("cuda")
-    #
-    #     module_lib = import_module("models_GWJ.hovernet.run_desc")
-    #     run_step = getattr(module_lib, "infer_step")
-    #     self.run_step = lambda input_batch: run_step(input_batch, net)
-    #
-    #     module_lib = import_module("models_GWJ.hovernet.post_proc")
-    #     self.post_proc_func = getattr(module_lib, "process")
-    #     return
-
-    # 20260205_GWJ_UNI
+    # HoVerNet
     def __load_model(self):
         """Create the model, load the checkpoint and define
         associated run steps to process each data batch.
 
         """
-        # model_desc = import_module("models_GWJ.hovernet.net_desc")
-        # 20260205_GWJ_UNI
-        model_desc = import_module("models_GWJ.UNI_hovernet.net_desc_UNI")
+        model_desc = import_module("models_GWJ.hovernet.net_desc")
         model_creator = getattr(model_desc, "create_model")
 
         net = model_creator(**self.method["model_args"])
         saved_state_dict = torch.load(self.method["model_path"])["desc"]
         saved_state_dict = convert_pytorch_checkpoint(saved_state_dict)
 
-        # 20260205_GWJ_UNI: 修正权重键名不匹配问题 (backbone 嵌套导致层级偏移)
-        new_state_dict = {}
-        for k, v in saved_state_dict.items():
-            if k.startswith('backbone.conv_bot'):
-                name = k.replace('backbone.conv_bot', 'conv_bot')
-            elif k.startswith('backbone.upsample2x'):
-                name = k.replace('backbone.upsample2x', 'upsample2x')
-            else:
-                name = k
-            new_state_dict[name] = v
-        saved_state_dict = new_state_dict
-
-        # 20260205_GWJ_UNI: 检查是否有遗漏的键名或多余的键名
         net.load_state_dict(saved_state_dict, strict=True)
         net = torch.nn.DataParallel(net)
         net = net.to("cuda")
 
-        # module_lib = import_module("models_GWJ.hovernet.run_desc")
-        # 20260205_GWJ_UNI
-        module_lib = import_module("models_GWJ.UNI_hovernet.run_desc")
+        module_lib = import_module("models_GWJ.hovernet.run_desc")
         run_step = getattr(module_lib, "infer_step")
         self.run_step = lambda input_batch: run_step(input_batch, net)
 
-        # module_lib = import_module("models_GWJ.hovernet.post_proc")
-        # 20260205_GWJ_UNI
-        module_lib = import_module("models_GWJ.UNI_hovernet.post_proc")
+        module_lib = import_module("models_GWJ.hovernet.post_proc")
         self.post_proc_func = getattr(module_lib, "process")
         return
+
+    # 20260205_GWJ_UNI_HoVerNet
+    # def __load_model(self):
+    #     """Create the model, load the checkpoint and define
+    #     associated run steps to process each data batch.
+    #     """
+    #     from collections import OrderedDict
+    #     from importlib import import_module
+    #     import torch
+    #
+    #     # 20260205_GWJ: 加载自定义的 UNI_HoVerNet 定义
+    #     model_desc = import_module("models_GWJ.UNI_hovernet.net_desc_UNI")
+    #     model_creator = getattr(model_desc, "create_model")
+    #
+    #     # 初始化网络
+    #     net = model_creator(**self.method["model_args"])
+    #
+    #     # 加载原始权重字典
+    #     checkpoint = torch.load(self.method["model_path"])
+    #     saved_state_dict = checkpoint["desc"]
+    #
+    #     # 1. 首先移除 DataParallel 产生的 'module.' 前缀 (处理训练时多出的前缀)
+    #     temp_state_dict = OrderedDict()
+    #     for k, v in saved_state_dict.items():
+    #         name = k[7:] if k.startswith('module.') else k
+    #         temp_state_dict[name] = v
+    #
+    #     # 2. 核心修复：修正 backbone 错误嵌套导致的层级漂移
+    #     # 解决 Missing: ['conv_bot.weight'] 和 Unknown: ['backbone.conv_bot.weight']
+    #     final_state_dict = OrderedDict()
+    #     current_model_keys = list(net.state_dict().keys())
+    #
+    #     for model_key in current_model_keys:
+    #         if model_key in temp_state_dict:
+    #             # 情况 A: 键名完全匹配
+    #             final_state_dict[model_key] = temp_state_dict[model_key]
+    #         elif f"backbone.{model_key}" in temp_state_dict:
+    #             # 情况 B: 权重文件里多嵌套了一层 backbone (修正 conv_bot 和 upsample2x)
+    #             final_state_dict[model_key] = temp_state_dict[f"backbone.{model_key}"]
+    #             print(f"DEBUG: Fixed mapping [backbone.{model_key}] -> [{model_key}]")
+    #         else:
+    #             # 情况 C: 依然找不到 (如辅助变量)，保留原样让 strict=True 提示
+    #             pass
+    #
+    #     # 3. 加载修正后的权重
+    #     net.load_state_dict(final_state_dict, strict=True)
+    #
+    #     # 包装并移动到 GPU
+    #     net = torch.nn.DataParallel(net)
+    #     net = net.to("cuda")
+    #
+    #     # 20260205_GWJ: 加载对应的推理逻辑和后处理
+    #     module_lib = import_module("models_GWJ.UNI_hovernet.run_desc")
+    #     run_step = getattr(module_lib, "infer_step")
+    #     self.run_step = lambda input_batch: run_step(input_batch, net)
+    #
+    #     module_lib = import_module("models_GWJ.UNI_hovernet.post_proc")
+    #     self.post_proc_func = getattr(module_lib, "process")
+    #     return
 
     def __save_json(self, path, old_dict, mag=None):
         new_dict = {}

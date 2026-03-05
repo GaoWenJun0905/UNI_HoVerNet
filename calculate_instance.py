@@ -74,6 +74,6 @@ def analyze_dataset_instances(data_dir):
 if __name__ == "__main__":
     # 替换为你实际生成的 train 或 valid 目录
 
-    DATA_PATH = "/home/wenjun_data/SMILE_Data/Data/20260203_1229TTF-1/TrainingData/0.9:0.1_TTF-1_sldie4/f1/f1/train/540x540_500x500"
+    DATA_PATH = "/home/wenjun_data/SMILE_Data/Data/TrainingData/20260208_test/0.9:0.1_WT-1_slide4/f1/f1/train/540x540_500x500"
 
     analyze_dataset_instances(DATA_PATH)

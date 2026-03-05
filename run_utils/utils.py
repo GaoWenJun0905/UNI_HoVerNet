@@ -12,50 +12,22 @@ from torch.autograd import Variable
 
 
 ####
-# def convert_pytorch_checkpoint(net_state_dict):
-#     variable_name_list = list(net_state_dict.keys())
-#     is_in_parallel_mode = all(v.split(".")[0] == "module" for v in variable_name_list)
-#     if is_in_parallel_mode:
-#         colored_word = colored("WARNING", color="red", attrs=["bold"])
-#         print(
-#             (
-#                 "%s: Detect checkpoint saved in data-parallel mode."
-#                 " Converting saved model to single GPU mode." % colored_word
-#             ).rjust(80)
-#         )
-#         net_state_dict = {
-#             ".".join(k.split(".")[1:]): v for k, v in net_state_dict.items()
-#         }
-#     return net_state_dict
-# 20260205_GWJ_UNI
 def convert_pytorch_checkpoint(net_state_dict):
     variable_name_list = list(net_state_dict.keys())
-
-    # 1. 处理 DataParallel 的 module. 前缀
     is_in_parallel_mode = all(v.split(".")[0] == "module" for v in variable_name_list)
     if is_in_parallel_mode:
         colored_word = colored("WARNING", color="red", attrs=["bold"])
         print(
             (
-                    "%s: Detect checkpoint saved in data-parallel mode."
-                    " Converting saved model to single GPU mode." % colored_word
+                "%s: Detect checkpoint saved in data-parallel mode."
+                " Converting saved model to single GPU mode." % colored_word
             ).rjust(80)
         )
         net_state_dict = {
             ".".join(k.split(".")[1:]): v for k, v in net_state_dict.items()
         }
-
-    # 2. [关键修复] 处理 UNI 权重映射：为没有前缀的 Key 加上 "backbone."
-    # 逻辑：如果 key 不是以 backbone/decoder/adapter 开头，说明是 UNI 的原始权重
-    new_state_dict = {}
-    for k, v in net_state_dict.items():
-        if not (k.startswith("backbone.") or k.startswith("decoder.") or k.startswith("adapter.")):
-            new_key = "backbone." + k
-        else:
-            new_key = k
-        new_state_dict[new_key] = v
-
-    return new_state_dict
+    return net_state_dict
+# 20260205_GWJ_UNI
 
 
 ####
