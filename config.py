@@ -18,8 +18,9 @@ class Config(object):
         # turn on debug flag to trace some parallel processing problems more easily
         self.debug = False
 
-        model_name = "hovernet"
+        # model_name = "hovernet"
         # model_name = "UNI_hovernet"
+        model_name = "ConVNeXt_Base_TripMTCA_hovernet"
         model_mode = "fast" # choose either `original` or `fast`
 
         if model_mode not in ["original", "fast"]:
@@ -50,7 +51,7 @@ class Config(object):
 
         self.dataset_name = "f1" # extracts dataset info from dataset.py
         # self.log_dir = "/media/server/data_2/24_GaoWenJun/UNI_HoVerNet/Logs/20260303-2" # where checkpoints will be saved
-        self.log_dir = "/media/server/data_2/24_GaoWenJun/HoVerNet/Logs/20260305-1" # where checkpoints will be saved
+        self.log_dir = "/media/server/data_2/24_GaoWenJun/ConVNeXt_Base_TripMTCA_HoVerNet/Logs/20260309-1" # where checkpoints will be saved
 
         # paths to training and validation patches
         self.train_dir_list = [

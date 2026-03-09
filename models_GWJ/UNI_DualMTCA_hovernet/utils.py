@@ -165,7 +165,7 @@ def cost_xentropy_loss(true, pred, reduction="mean"):
     M = np.array([
         [0, 1, 1],
         [2, 0, 2],
-        [10, 10, 0]
+        [20, 20, 0]
     ])
 
     # 20250115_GWJ:20260116-1训练用的矩阵

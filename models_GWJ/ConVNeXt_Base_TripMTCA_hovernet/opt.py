@@ -14,13 +14,8 @@ from run_utils.callbacks.logging import LoggingEpochOutput, LoggingGradient
 from run_utils.engine import Events
 
 from .targets import gen_targets, prep_sample
-# from .net_desc import create_model
-# from .run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
-from models_GWJ.hovernet.net_desc import create_model
-# 20260205_GWJ_UNI
-# from models_GWJ.UNI_hovernet.net_desc_UNI import create_model
-from models_GWJ.hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
-# from models_GWJ.UNI_hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
+from models_GWJ.ConVNeXt_Base_TripMTCA_hovernet.net_desc_ConVNeXt_Base_MTCA import create_model
+from models_GWJ.ConVNeXt_Base_TripMTCA_hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
 
 
 # TODO: training config only ?
@@ -52,18 +47,23 @@ def get_config(nr_type, mode):
                             "loss": {
                                 "np": {"bce": 1, "dice": 1},
                                 # "np": {"cost": 1, "dice": 1}, # 20260227_GWJ
-                                "hv": {"mse": 1, "msge": 1},
-                                # "tp": {"bce": 1, "dice": 1},
+                                # "hv": {"mse": 1, "msge": 1},
+                                "hv": {"mse": 2, "msge": 2}, # 20260309_GWJ
+                                "tp": {"bce": 1, "dice": 1},
                                 # "tp": {"focal": 1, "dice": 1},# 20260214_GWJ效果不好
                                 # "tp": {"bah": 1, "dice": 1},# 20260215_GWJ
-                                "tp": {"cost": 1, "dice": 1},# 20260227_GWJ
+                                # "tp": {"cost": 1, "dice": 1},# 20260227_GWJ
                             },
                         },
                         # path to load, -1 to auto load checkpoint from previous phase,
                         # None to start from scratch
                         # "pretrained": "/media/server/data_1/24_GaoWenJun/Code/HoVerNet/ImageNet-ResNet50-Preact_pytorch.tar",
                         # 20260205_GWJ_UNI
-                        "pretrained": "/media/server/data_1/24_GaoWenJun/Code/UNI/pytorch_model.bin",
+                        # "pretrained": "/media/server/data_1/24_GaoWenJun/Code/UNI/pytorch_model.bin",
+                        # 20260306_GWJ_Giga
+                        # "pretrained": "/media/server/data_1/24_GaoWenJun/Code/HoVerNet/Giga.bin", # 改文件名
+                        # 20260306_GWJ_ConVNeXt
+                        "pretrained": "/media/server/data_1/24_GaoWenJun/Code/HoVerNet/convnext_base_22k_224.pth", # 改文件名
                         # 'pretrained': None,
                     },
                 },
@@ -94,11 +94,12 @@ def get_config(nr_type, mode):
                             "loss": {
                                 "np": {"bce": 1, "dice": 1},
                                 # "np": {"cost": 1, "dice": 1}, # 20260227_GWJ
-                                "hv": {"mse": 1, "msge": 1},
-                                # "tp": {"bce": 1, "dice": 1},
+                                # "hv": {"mse": 1, "msge": 1},
+                                "hv": {"mse": 2, "msge": 2}, # 20260309_GWJ
+                                "tp": {"bce": 1, "dice": 1},
                                 # "tp": {"focal": 1, "dice": 1},# 20260214_GWJ效果不好
                                 # "tp": {"bah": 1, "dice": 1},# 20260215_GWJ
-                                "tp": {"cost": 1, "dice": 1},# 20260227_GWJ
+                                # "tp": {"cost": 1, "dice": 1},# 20260227_GWJ
                             },
                         },
                         # path to load, -1 to auto load checkpoint from previous phase,
@@ -107,7 +108,9 @@ def get_config(nr_type, mode):
                     },
                 },
                 "target_info": {"gen": (gen_targets, {}), "viz": (prep_sample, {})},
+                # "batch_size": {"train": 4, "valid": 4,}, # batch size per gpu
                 "batch_size": {"train": 4, "valid": 4,}, # batch size per gpu
+                # "nr_epochs": 100,
                 # "nr_epochs": 100,
                 "nr_epochs": 100,
             },
@@ -137,15 +140,16 @@ def get_config(nr_type, mode):
                                 # "np": {"cost": 0, "dice": 0},
                                 "hv": {"mse": 0, "msge": 0},
                                 # 开启分类 Loss
-                                # "tp": {"bce": 1, "dice": 1},
+                                "tp": {"bce": 1, "dice": 1},
                                 # "tp": {"focal": 1, "dice": 1}, # 20260214_GWJ效果不好
-                                "tp": {"cost": 1, "dice": 1}, # 20260215_GWJ
+                                # "tp": {"cost": 1, "dice": 1}, # 20260307_GWJ效果不好
                             },
                         },
                         "pretrained": -1,  # 继承 Phase 2
                     },
                 },
                 "target_info": {"gen": (gen_targets, {}), "viz": (prep_sample, {})},
+                # "batch_size": {"train": 4, "valid": 4},
                 "batch_size": {"train": 4, "valid": 4},
                 # "nr_epochs": 50,  # 专门花时间修分类
                 "nr_epochs": 50,  # 专门花时间修分类

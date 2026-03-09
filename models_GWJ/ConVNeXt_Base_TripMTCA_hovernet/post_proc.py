@@ -76,12 +76,17 @@ def __proc_np_hv(pred):
     dist = -cv2.GaussianBlur(dist, (3, 3), 0)
 
     overall = np.array(overall >= 0.4, dtype=np.int32) # 20260309_GWJ
-    # overall = np.array(overall >= 0.5, dtype=np.int32)
+    # overall = np.array(overall >= 0.5, dtype=np.int32) # 20260309_GWJ 效果还行
+    # overall = np.array(overall >= 0.7, dtype=np.int32)
+    # overall = np.array(overall >= 0.8, dtype=np.int32) # 效果还行
+
 
     marker = blb - overall
     marker[marker < 0] = 0
     marker = binary_fill_holes(marker).astype("uint8")
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)) #  20260309_GWJ
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (1, 1))
     marker = cv2.morphologyEx(marker, cv2.MORPH_OPEN, kernel)
     marker = measurements.label(marker)[0]
     marker = remove_small_objects(marker, min_size=10)

@@ -76,6 +76,7 @@ def __proc_np_hv(pred):
     dist = -cv2.GaussianBlur(dist, (3, 3), 0)
 
     overall = np.array(overall >= 0.4, dtype=np.int32)
+    # overall = np.array(overall >= 0.5, dtype=np.int32)
 
     marker = blb - overall
     marker[marker < 0] = 0

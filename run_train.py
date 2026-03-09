@@ -240,6 +240,28 @@ class TrainManager(Config):
                             else:
                                 new_dict[k] = v
                         net_state_dict = new_dict
+                    elif chkpt_ext == "pth":
+                        net_state_dict = torch.load(pretrained_path, map_location='cpu')
+
+                        # 兼容 Meta 官方权重的嵌套格式
+                        if isinstance(net_state_dict, dict):
+                            if "model" in net_state_dict:
+                                net_state_dict = net_state_dict["model"]
+                            elif "state_dict" in net_state_dict:
+                                net_state_dict = net_state_dict["state_dict"]
+
+                        new_dict = {}
+                        for k, v in net_state_dict.items():
+                            # 🌟 修复点：同时过滤掉无用的 "head." 和 "norm."
+                            if k.startswith("head.") or k.startswith("norm."):
+                                continue
+
+                            # 2. 为 ConvNeXt 的骨干层添加 "backbone." 前缀，以便和自定义网络对接
+                            if not k.startswith("backbone."):
+                                new_dict["backbone." + k] = v
+                            else:
+                                new_dict[k] = v
+                        net_state_dict = new_dict
 
                 colored_word = colored(net_name, color="red", attrs=["bold"])
                 print(

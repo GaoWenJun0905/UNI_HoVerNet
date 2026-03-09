@@ -16,11 +16,11 @@ from run_utils.engine import Events
 from .targets import gen_targets, prep_sample
 # from .net_desc import create_model
 # from .run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
-from models_GWJ.hovernet.net_desc import create_model
+# from models_GWJ.hovernet.net_desc import create_model
 # 20260205_GWJ_UNI
-# from models_GWJ.UNI_hovernet.net_desc_UNI import create_model
-from models_GWJ.hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
-# from models_GWJ.UNI_hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
+from models_GWJ.UNI_hovernet.net_desc_UNI import create_model
+# from models_GWJ.hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
+from models_GWJ.UNI_hovernet.run_desc import proc_valid_step_output, train_step, valid_step, viz_step_output
 
 
 # TODO: training config only ?
